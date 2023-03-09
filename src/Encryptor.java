@@ -115,12 +115,39 @@ public class Encryptor
      */
     public String decryptMessage(String encryptedMessage)
     {
-        fillBlock(encryptedMessage);
-
+        String encrypted = "";
+        int keySize = numRows * numCols;
+        int i = 0;
+        while (i < encryptedMessage.length())
+        {
+            reverseFillBlock(encryptedMessage.substring(i, i + keySize));
+            for (int r = 0; r < letterBlock.length; r++)
+            {
+                for (int c = 0; c < letterBlock[0].length; c++)
+                {
+                    encrypted+= letterBlock[r][c];
+                }
+            }
+            i += keySize;
+        }
+        i = encrypted.length() - 1;
+        while (encrypted.substring(i).equals("A"))
+        {
+            encrypted = encrypted.substring(0, i);
+            i--;
+        }
+        return encrypted;
     }
-
-    public String decryptBlock()
+    public void reverseFillBlock(String str)
     {
-
+        int k = 0;
+        for (int c = 0; c < letterBlock[0].length;c++)
+        {
+            for (int r = 0; r < letterBlock.length;r++)
+            {
+                letterBlock[r][c] = str.substring(k, k + 1);
+                k++;
+            }
+        }
     }
 }
