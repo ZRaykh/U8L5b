@@ -150,4 +150,73 @@ public class Encryptor
             }
         }
     }
+
+    public String superEncrypt(String message, int shift)
+    {
+        int keySize = numRows * numCols;
+        int i = 0;
+        while (i + keySize < message.length())
+        {
+            fillBlock(charShift(message.substring(i, i + keySize), shift));
+            rowShift(shift);
+            colShift(shift);
+
+            message += encryptBlock();
+            i += keySize;
+        }
+        fillBlock(charShift(message.substring(i), shift));
+        message += encryptBlock();
+        return message;
+    }
+    public String charShift(String message, int ofSet)
+    {
+        String values = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        for (int o = 0; o < ofSet; o++)
+        {
+            for (int i = 0; i < message.length(); i++)
+            {
+                int index = values.indexOf(message.substring(i, i + 1));
+                if(index == 0)
+                {
+                    message = message.substring(0, i) + values.substring(values.length() - 1) + message.substring(i + 1);
+                }
+                else if(index != -1)
+                {
+                    message = message.substring(0, i) + values.substring(index - 1, index) + message.substring(i + 1);
+                }
+            }
+        }
+        return message;
+    }
+    public void rowShift(int oftSet)
+    {
+        for(int o = 0; o < oftSet; o++)
+        {
+            String[] first = letterBlock[0];
+            for (int i = 1; i < letterBlock.length - 1; i++)
+            {
+                letterBlock[i - 1] = letterBlock[i];
+                letterBlock[i] = letterBlock[i + 1];
+
+            }
+            letterBlock[letterBlock.length - 1] = first;
+        }
+    }
+
+    public void colShift(int oftSet)
+    {
+        for(int r = 0; r < letterBlock.length; r++)
+        {
+            for (int o = 0; o < oftSet; o++)
+            {
+                String first = letterBlock[r][0];
+                for (int c = 1; c < letterBlock[0].length - 1; c++)
+                {
+                    letterBlock[r][c - 1] = letterBlock[r][c];
+                    letterBlock[r][c] = letterBlock[r][c + 1];
+                }
+                letterBlock[r][letterBlock[0].length - 1] = first;
+            }
+        }
+    }
 }
