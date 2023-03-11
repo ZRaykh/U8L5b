@@ -153,6 +153,7 @@ public class Encryptor
 
     public String superEncrypt(String message, int shift)
     {
+        String encryptedMessage = "";
         int keySize = numRows * numCols;
         int i = 0;
         while (i + keySize < message.length())
@@ -161,12 +162,12 @@ public class Encryptor
             rowShift(shift);
             colShift(shift);
 
-            message += encryptBlock();
+            encryptedMessage += encryptBlock();
             i += keySize;
         }
         fillBlock(charShift(message.substring(i), shift));
-        message += encryptBlock();
-        return message;
+        encryptedMessage += encryptBlock();
+        return encryptedMessage;
     }
     public String charShift(String message, int ofSet)
     {
@@ -216,6 +217,86 @@ public class Encryptor
                     letterBlock[r][c] = letterBlock[r][c + 1];
                 }
                 letterBlock[r][letterBlock[0].length - 1] = first;
+            }
+        }
+    }
+
+    public String superDecrypt(String encryptedMessage, int shift)
+    {
+        String encrypted = "";
+        int keySize = numRows * numCols;
+        int i = 0;
+        while (i < encryptedMessage.length())
+        {
+            reverseFillBlock(encryptedMessage.substring(i, i + keySize));
+            revColShift(shift);
+            revRowShift(shift);
+            for (int r = 0; r < letterBlock.length; r++)
+            {
+                for (int c = 0; c < letterBlock[0].length; c++)
+                {
+                    encrypted+= letterBlock[r][c];
+                }
+            }
+            i += keySize;
+        }
+        i = encrypted.length() - 1;
+        encrypted = revCharShift(encrypted, shift);
+        while (encrypted.substring(i).equals("A"))
+        {
+            encrypted = encrypted.substring(0, i);
+            i--;
+        }
+        return encrypted;
+    }
+    public String revCharShift(String message, int ofSet)
+    {
+        String values = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        for (int o = 0; o < ofSet; o++)
+        {
+            for (int i = 0; i < message.length(); i++)
+            {
+                int index = values.indexOf(message.substring(i, i + 1));
+                if(index == values.length() - 1)
+                {
+                    message = message.substring(0, i) + values.substring(0, 1) + message.substring(i + 1);
+                }
+                else if(index != -1)
+                {
+                    message = message.substring(0, i) + values.substring(index + 1, index + 2) + message.substring(i + 1);
+                }
+            }
+        }
+        return message;
+    }
+
+    public void revRowShift(int oftSet)
+    {
+        for(int o = 0; o < oftSet; o++)
+        {
+            String[] last = letterBlock[letterBlock.length - 1];
+            for (int i = 1; i < letterBlock.length - 1; i++)
+            {
+                letterBlock[i + 1] = letterBlock[i];
+                letterBlock[i] = letterBlock[i - 1];
+            }
+            letterBlock[0] = last;
+        }
+    }
+
+    public void revColShift(int oftSet)
+    {
+        for(int r = 0; r < letterBlock.length; r++)
+        {
+            for (int o = 0; o < oftSet; o++)
+            {
+                String last  = letterBlock[r][letterBlock[0].length - 1];
+                for (int c = 1; c < letterBlock[0].length - 1; c++)
+                {
+                    letterBlock[r][c + 1] = letterBlock[r][c];
+                    letterBlock[r][c] = letterBlock[r][c - 1];
+                }
+                letterBlock[r][letterBlock[0].length - 1] = last;
             }
         }
     }
